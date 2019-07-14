@@ -5,7 +5,7 @@ If you are interested in learning FX markets, this allows you to mass-download a
 
 Download the script and 
 '''
-python download -u "Your TrueFX Username" -p "Your TrueFX Password
+python fx_download.py -u "Your TrueFX Username" -p "Your TrueFX Password
 '''
 Make sure you have a subdirectory in your working directory called "data" as the script will look for it. This data is extremely large, so make sure you are prepared for it.
 
