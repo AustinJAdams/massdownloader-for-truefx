@@ -9,5 +9,5 @@ python fx_download.py -u "Your TrueFX Username" -p "Your TrueFX Password
 '''
 Make sure you have a subdirectory in your working directory called "data" as the script will look for it. This data is extremely large, so make sure you are prepared for it.
 
-##TODO
+## TODO
 Add more functionality with custom paths, currency pairs, years, months, and ability to not-unzip.
