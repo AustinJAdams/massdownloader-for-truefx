@@ -6,6 +6,7 @@ from zipfile import ZipFile
 import os
 import datetime
 import argparse
+import pickle
 
 #This could be useful if I implement this better
 # currencies = ",".join(['AUDJPY', 'AUDNZD', 'AUDUSD', 'CADJPY', 'CHFJPY', 'EURCHF', 'EURGBP',
@@ -13,11 +14,17 @@ import argparse
 # months = ",".join(["{:02d}".format(x) for x in range(1, 13)])
 # years = ",".join([str(y) for y in range(2009, datetime.datetime.today().year + 1)])
 # path = "{}/".format(os.getcwd())   
-
-parser = argparse.ArgumentParser(description="Add your TrueFX username and password.", epilog='Written by Austin Adams')
-parser.add_argument("username", help="Your Truefx username")
-parser.add_argument("password", help="Your Truefx password")
-args = parser.parse_args()
+if 'pass.pkl' in os.listdir():
+    args = pickle.load(open("pass.pkl", 'rb'))
+    username = args['username']
+    password = args['password']
+else:
+    parser = argparse.ArgumentParser(description="Add your TrueFX username and password.", epilog='Written by Austin Adams')
+    parser.add_argument("username", help="Your Truefx username")
+    parser.add_argument("password", help="Your Truefx password")
+    args = parser.parse_args()
+    username = str(args.username)
+    password = str(args.password)
 
 months = []
 year_adj = ''
@@ -31,8 +38,10 @@ for i in range(1,13):
     else:
         year_adj = i
     name_to_number[str(datetime.date(2008, i, 1).strftime('%B').lower())] = year_adj
-    
-payload = {'USERNAME': str(args.username), 'PASSWORD': str(args.password)}
+payload = {'USERNAME': username, 'PASSWORD': password}
+if 'data' not in os.listdir():
+    os.mkdir('data')
+
 url = 'https://www.truefx.com/?page=downloads'
 with requests.Session() as session:
     #First, we authenticate with the server login page
@@ -77,15 +86,15 @@ with requests.Session() as session:
             response_next_month = BeautifulSoup(response_next_month.content, 'html.parser')
             
             #There are two different styles TrueFX used
-            year_month = month.split('/')[-1][-7:]
+            year_month = month.split('/')[-1]
             year_month = year_month.split("-")
             #One has a string first (the month), and the other has the year
             try:
                 test_val = int(year_month[0])
                 year_month = year_month[0] + "-" + year_month[1] 
             except:
-                year_val[0] = name_to_number[year_month[0].lower()]
-                year_month = year_month[1] + "-" + year_month[0]
+                name_to_number_val = name_to_number[year_month[0].lower()]
+                year_month = year_month[1] + "-" + str(name_to_number_val)
             print(year_month)
             os.mkdir('data/{}/{}'.format(year_val, year_month))
 
