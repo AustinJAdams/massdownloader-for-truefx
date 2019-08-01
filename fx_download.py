@@ -77,7 +77,8 @@ with requests.Session() as session:
                 href2.append(month.get('href'))
         
         #Create the underlying directory to then enter
-        os.mkdir('data/{}'.format(year_val))
+        if '{}'.format(year_val) not in os.listdir('data'):
+            os.mkdir('data/{}'.format(year_val))
 
         #Now we iterate over the month hrefs
         for month in href2:
@@ -96,7 +97,8 @@ with requests.Session() as session:
                 name_to_number_val = name_to_number[year_month[0].lower()]
                 year_month = year_month[1] + "-" + str(name_to_number_val)
             print(year_month)
-            os.mkdir('data/{}/{}'.format(year_val, year_month))
+            if '{}'.format(year_month) not in os.listdir('data/{}'.format(year_val)):
+                os.mkdir('data/{}/{}'.format(year_val, year_month))
 
             #Now we look for the download links by searching for zips
             for pair in response_next_month.find_all('a'):
@@ -107,10 +109,15 @@ with requests.Session() as session:
                     url_val = url_string.split('/')[-1]
                     print(url_val)
                     down_page_pair = 'https://www.truefx.com/{}'.format(url_string)
-                    data = requests.get(down_page_pair, stream = True)
                     url_val = url_string.split('/')[-1]
                     print('data/{}/{}/{}'.format(year_val, year_month, url_val))
-
+                    zip_val = url_val.split('.')
+                    if '{}.csv'.format(zip_val[0]) in os.listdir('data/{}/{}'.format(year_val, year_month)):
+                        continue
+                        #we essentially ddos the server, so we should wait a second
+                        print('found: {}.csv'.format(zip_val[0]))
+                        time.sleep(1)
+                    data = requests.get(down_page_pair, stream = True)
                     #We use chunk-size saving to then save the data 
                     #Thanks to https://github.com/Sebastiaan76/truefx-downloader for this part
                     with open('data/{}/{}/{}'.format(year_val, year_month, url_val), 'wb') as f:
